@@ -5,7 +5,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 # import Tscheschien
 czech_origin_data = pd.read_csv('kraj-okres-nakazeni-vyleceni-umrti (1).csv')
-czech_origin_data.columns = ['date', 'state', 'district', 'district_cz_infected_number', 'healed', 'deaths']
+czech_origin_data.columns = ['date', 'state', 'district', 'infected_number', 'healed', 'deaths']
 czech_origin_data['date'] = pd.to_datetime(czech_origin_data['date'], format='%Y-%m-%d')
 
 # import Germany
@@ -75,7 +75,7 @@ def plot(x1, y1, name_1, x2, y2, name_2, title):
 
     fig.update_xaxes(
         dtick="M1")
-    fig.update_layout(height=800, width=1500, title_text=title)
+    fig.update_layout(height=800, width=2000, title_text=title)
     fig.show()
 
 
@@ -83,22 +83,25 @@ def compareCountries(germandf, german_what, czechdf, czech_what, title):
     czechdf.drop(czechdf.index[(czechdf["district"] != czech_what)], axis=0,
                  inplace=True)
 
-    czechdf.drop(czechdf.columns.difference(['date', 'district_cz_infected_number']), 1,
+    czechdf.drop(czechdf.columns.difference(['date', 'infected_number']), 1,
                  inplace=True)
 
-    germandf['district_de_infected_number'] = germandf[german_what]
-    germandf.drop(germandf.columns.difference(['date', 'district_de_infected_number']), 1,
+    germandf['infected_number'] = germandf[german_what]
+    germandf.drop(germandf.columns.difference(['date', 'infected_number']), 1,
                   inplace=True)
-    df_norm_de = min_max_scaling(germandf)
-    df_norm_cz = min_max_scaling(czechdf)
-    germandf_final_norm = join_date(germandf, df_norm_de)
-    czechdf_final_norm = join_date(czechdf, df_norm_cz)
 
-    print("1",czechdf_final_norm)
-    print("2",germandf_final_norm)
+    ## Normalization ##
 
-    plot(germandf_final_norm['date'], germandf_final_norm['district_de_infected_number'].diff(), german_what,
-         czechdf_final_norm['date'], czechdf_final_norm['district_cz_infected_number'].diff(), czech_what,
+    #inf_difference(czechdf)
+    #inf_difference(germandf)
+    ##f_norm_de = min_max_scaling(germandf)
+    #df_norm_cz = min_max_scaling(czechdf)
+    #germandf_final_norm = join_date(germandf, df_norm_de)
+    #czechdf_final_norm = join_date(czechdf, df_norm_cz)
+    #print(germandf_final_norm)
+
+    plot(germandf['date'], germandf['infected_number'].diff(), german_what,
+         czechdf['date'], czechdf['infected_number'].diff(), czech_what,
          title)
 
 
@@ -106,8 +109,8 @@ def compareCountries(germandf, german_what, czechdf, czech_what, title):
 def correlation(df1, df2):
     merged_df = df1.merge(df2, how='inner', left_on=["date"], right_on=["date"])
 
-    x1 = merged_df["district_cz_infected_number"]
-    x2 = merged_df["district_de_infected_number"]
+    x1 = merged_df["infected_number"]
+    x2 = merged_df["infected_number"]
     print(merged_df)
 
     print("Korrelation: ", x2.corr(x1))
@@ -141,7 +144,9 @@ def join_date(df_date, df_norm):
     joined_df = df_copy.join(df_norm)
     return joined_df
 
-
+def inf_difference(df):
+    df['inf_dif'] = df['infected_number'].diff()
+    print(copy_cz)
 # Functions
 
 #filtered_german_df.drop(['sum_cases'], axis=1, inplace=True)
@@ -151,6 +156,10 @@ print(filtered_german_df)
 '''
 copy_german = filtered_german_df.copy(deep=False)
 copy_cz = filtered_czech_df.copy(deep=False)
+
 test = compareCountries(copy_german, Tirschenreuth, copy_cz, Eger, "Vergleiche Tirschenreuth mit Cheb")
+#inf_difference(copy_cz)
+
+
 
 
