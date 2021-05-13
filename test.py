@@ -1,7 +1,8 @@
 import pandas as pd
 import plotly.graph_objs as go
+
 pd.options.mode.chained_assignment = None  # default='warn'
-#from sklearn import preprocessing
+# from sklearn import preprocessing
 
 # import Tscheschien
 czech_origin_data = pd.read_csv('kraj-okres-nakazeni-vyleceni-umrti (1).csv')
@@ -9,19 +10,20 @@ czech_origin_data.columns = ['date', 'state', 'district', 'infected_number', 'he
 czech_origin_data['date'] = pd.to_datetime(czech_origin_data['date'], format='%Y-%m-%d')
 
 # import Germany
-german_origin_data = pd.read_csv('https://raw.githubusercontent.com/jgehrcke/covid-19-germany-gae/master/cases-rki-by-ags.csv')
+german_origin_data = pd.read_csv(
+    'https://raw.githubusercontent.com/jgehrcke/covid-19-germany-gae/master/cases-rki-by-ags.csv')
 german_origin_data['time_iso8601'] = pd.to_datetime(german_origin_data['time_iso8601'])
 german_origin_data['date'] = german_origin_data['time_iso8601'].dt.date
 german_origin_data['date'] = pd.to_datetime(german_origin_data['date'], format='%Y-%m-%d')
 german_origin_data.drop(['sum_cases', 'time_iso8601'], axis=1, inplace=True)
 
-#filter timeframe Tschechien
+# filter timeframe Tschechien
 filtered_czech_df = czech_origin_data.loc[(czech_origin_data['date'] >= '2020-03-02')
-                                 & (czech_origin_data['date'] < '2021-03-02')]
+                                          & (czech_origin_data['date'] < '2021-03-02')]
 
 # filter timeframe Germany
 filtered_german_df = german_origin_data.loc[(german_origin_data['date'] >= '2020-03-02')
-                                   & (german_origin_data['date'] < '2021-03-02')]
+                                            & (german_origin_data['date'] < '2021-03-02')]
 
 # DE districts
 Freyung_Grafenau = "9272"
@@ -80,38 +82,50 @@ def plot(x1, y1, name_1, x2, y2, name_2, title):
 
 
 def compareCountries(germandf, german_what, czechdf, czech_what, title):
-    czechdf.drop(czechdf.index[(czechdf["district"] != czech_what)], axis=0,
+    #copy cause python wants this
+    copy_german = germandf.copy(deep=False)
+    copy_cz = czechdf.copy(deep=False)
+
+    copy_cz.drop(copy_cz.index[(copy_cz["district"] != czech_what)], axis=0,
                  inplace=True)
 
-    czechdf.drop(czechdf.columns.difference(['date', 'infected_number']), 1,
+    copy_cz.drop(copy_cz.columns.difference(['date', 'infected_number']), 1,
                  inplace=True)
 
-    germandf['infected_number'] = germandf[german_what]
-    germandf.drop(germandf.columns.difference(['date', 'infected_number']), 1,
+    copy_german['infected_number'] = copy_german[german_what]
+    copy_german.drop(copy_german.columns.difference(['date', 'infected_number']), 1,
                   inplace=True)
 
     ## Normalization ##
 
-    #inf_difference(czechdf)
-    #inf_difference(germandf)
+    # inf_difference(czechdf)
+    # inf_difference(germandf)
     ##f_norm_de = min_max_scaling(germandf)
-    #df_norm_cz = min_max_scaling(czechdf)
-    #germandf_final_norm = join_date(germandf, df_norm_de)
-    #czechdf_final_norm = join_date(czechdf, df_norm_cz)
-    #print(germandf_final_norm)
+    # df_norm_cz = min_max_scaling(czechdf)
+    # germandf_final_norm = join_date(germandf, df_norm_de)
+    # czechdf_final_norm = join_date(czechdf, df_norm_cz)
+    # print(germandf_final_norm)
 
-    plot(germandf['date'], germandf['infected_number'].diff(), german_what,
-         czechdf['date'], czechdf['infected_number'].diff(), czech_what,
+    plot(copy_german['date'], copy_german['infected_number'].diff(), german_what,
+         copy_cz['date'], copy_cz['infected_number'].diff(), czech_what,
          title)
 
 
 # Correlation
-def correlation(df1, df2):
-    merged_df = df1.merge(df2, how='inner', left_on=["date"], right_on=["date"])
+def correlation(germandf, german_what, czechdf, czech_what):
+    # copy cause python wants this
+    copy_german = germandf.copy(deep=False)
+    copy_cz = czechdf.copy(deep=False)
+
+    copy_cz.drop(czechdf.index[(copy_cz["district"] != czech_what)], axis=0,
+                 inplace=True)
+    #copy_german.drop(copy_german.columns(copy_german.columns != german_what))
+    copy_german['infected_number_de'] = copy_german[german_what]
+    merged_df = copy_german.merge(copy_cz, how='inner', left_on=["date"], right_on=["date"])
 
     x1 = merged_df["infected_number"]
-    x2 = merged_df["infected_number"]
-    print(merged_df)
+    x2 = merged_df["infected_number_de"]
+    print('Merged DF: \n', merged_df)
 
     print("Korrelation: ", x2.corr(x1))
 
@@ -119,12 +133,14 @@ def correlation(df1, df2):
 '''Hier wird verglichen, ob die Durchschnittliche Infektionszahlen deutscher Randgebiete 
 höher leigen als der Bundesweite Durschscnitt'''
 
+
 # Average
 def calcAvg(df):
     df['daily_avg'] = round(df.mean(axis=1), 2)
     return df
 
-#Normalisation
+
+# Normalisation
 
 def min_max_scaling(df):
     # copy the dataframe
@@ -135,31 +151,38 @@ def min_max_scaling(df):
     df_norm.drop(['date'], axis=1, inplace=True)
     return df_norm
 
+
 # Join Date
 
 def join_date(df_date, df_norm):
     df_copy = df_date.copy(deep=False)
     df_copy.drop(df_copy.columns.difference(['date']), 1,
-                  inplace=True)
+                 inplace=True)
     joined_df = df_copy.join(df_norm)
     return joined_df
+
 
 def inf_difference(df):
     df['inf_dif'] = df['infected_number'].diff()
     print(copy_cz)
+
+
 # Functions
 
-#filtered_german_df.drop(['sum_cases'], axis=1, inplace=True)
+# filtered_german_df.drop(['sum_cases'], axis=1, inplace=True)
 '''print(filtered_german_df)
 calcAvg(filtered_german_df)
 print(filtered_german_df)
 '''
-copy_german = filtered_german_df.copy(deep=False)
-copy_cz = filtered_czech_df.copy(deep=False)
+#copy_german = filtered_german_df.copy(deep=False)
+#copy_cz = filtered_czech_df.copy(deep=False)
 
-test = compareCountries(copy_german, Tirschenreuth, copy_cz, Eger, "Vergleiche Tirschenreuth mit Cheb")
-#inf_difference(copy_cz)
-
-
+# test = compareCountries(copy_german, Tirschenreuth, copy_cz, Eger, "Vergleiche Tirschenreuth mit Cheb")
+# inf_difference(copy_cz)
 
 
+'''Funktionen00'''
+correlation(filtered_german_df, Hof, filtered_czech_df, Eger)
+compareCountries(filtered_german_df, Hof, filtered_czech_df, Eger, 'Hof und Eger')
+print('Tscvhechien: ', filtered_czech_df)
+print('German: ', filtered_german_df)
