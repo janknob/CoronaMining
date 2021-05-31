@@ -1,5 +1,9 @@
+from random import randrange
+
 import pandas as pd
 import plotly.graph_objs as go
+import numpy as np
+from varname import nameof
 
 pd.options.mode.chained_assignment = None  # default='warn'
 # from sklearn import preprocessing
@@ -25,7 +29,7 @@ filtered_czech_df = czech_origin_data.loc[(czech_origin_data['date'] >= '2020-03
 filtered_german_df = german_origin_data.loc[(german_origin_data['date'] >= '2020-03-02')
                                             & (german_origin_data['date'] < '2021-03-02')]
 
-# DE districts
+# DE  border districts
 Freyung_Grafenau = "9272"
 Regen = "9276"
 Cham = "9372"
@@ -41,21 +45,83 @@ Sächsische_Schweiz = "14628"
 Bautzen = "14625"
 Görlitz = "14626"
 
-# CZ districts
-Prachatitz = "CZ0315"  # Prachatitz (Prachatice)
-Klattau = "CZ0315"  # Klattau (Klatovy)
-Taus = "CZ0321"  # Taus (Domažlice)
-Tachau = "CZ0327"  # Tachau (Tachov)
-Eger = "CZ0411"  # Eger (Cheb)
-Falkenau = "CZ0413"  # Falkenau (Sokolov)
-Karlsbad = "CZ0412"  # Karlsbad (Karlovy Vary)
-Komotau = "CZ0422"  # Komotau (Chomutov)
-Brux = "CZ0425"  # Brux (Most)
-Teplitz_Schönau = "CZ0426"  # Teplitz-Schönau (Teplice)
-Aussig = "CZ0427"  # Aussig (Ústí nad Labem)
-Tetschen = "CZ0421"  # Tetschen (Děčín)
-Böhmisch_Leipa = "CZ0511"  # Böhmisch Leipa (Česká Lípa)
+# CZ districts Karlsbad (Karlovarsky kraj)
+Eger = "CZ0411"; Karlsbad = "CZ0412"; Falkenau = "CZ0413"
 
+# CZ districts Aussig (Ustecky kraj)
+Tetschen = "CZ0421"; Komotau = "CZ0422"; Leitmeritz = "CZ0423"; Laun = "CZ0424"; Brux = "CZ0425"; Teplitz_Schoenau = "CZ0426"; Aussig = "CZ0427"
+
+# CZ districts Reichenberg (Liberecky kraj)
+Boehmisch_Leipa = "CZ0511"; Gablonz = "CZ0512"; Reichenberg = "CZ0513"; Semil = "CZ0514"
+
+# CZ districts Königgrätz (Kralovehradecky kraj)
+Koeniggraetz = "CZ0521"; Jitschin = "CZ0522"; Nachod = "CZ0523"; Reichenau_an_der_Knieschna = "CZ0524"; Trautenau = "CZ0525"
+
+# CZ districts Pilsen (Plzensky kraj)
+Taus = "CZ0321"; Klattau = "CZ0322"; Pilsen_Stadt = "CZ0323"; Pilsen_Sued = "CZ0324"; Pilsen_Nord = "CZ0325"; Rokitzan = "CZ0326"; Tachau = "CZ0327"
+
+# CZ districts Mittelböhmen (Stredocesky kraj)
+Beneschau = "CZ0201"; Beroun = "CZ0202"; Kladen = "CZ0203"; Kollin = "CZ0204"; Kuttenberg = "CZ0205"; Melnik = "CZ0206"; Jungbunzlau = "CZ0207"; Nimburg = "CZ0208"; Prag_Ost = "CZ0209"; Prag_West = "CZ020A"; Freiberg_in_Boehmen = "CZ020B"; Rakonitz = "CZ020C"
+
+# CZ districts Prag (Praha)
+Prag = "CZ0100"
+
+# CZ districts Pardubitz (Pardubicky kraj)
+Chrudim = "CZ0531"; Pardubitz = "CZ0532"; Zwittau = "CZ0533"; Wildenschwert = "CZ0534"
+
+# CZ districts Olmütz (Olomoucky kraj)
+Freiwaldau = "CZ0711"; Olmuetz = "CZ0712"; Prossnitz = "CZ0713"; Prerau = "CZ0714"; Maehrisch_Schoenberg = "CZ0715"
+
+# CZ districts Mähren-Schlesien (Moravskoslezky kraj)
+Freudenthal = "CZ0801"; Friedeck_Mistek = "CZ0802"; Karwin = "CZ0803"; Neu_Titschein = "CZ0804"; Troppau = "CZ0805"; Ostrau_Stadt = "CZ0806"
+
+# CZ districts Mähren-Schlesien (Moravskoslezky kraj)
+Budweis = "CZ0311"; Krumau = "CZ0312"; Neuhaus = "CZ0313"; Pisek = "CZ0314"; Prachatiz = "CZ0315"; Strakonitz = "CZ0316"; Tabor = "CZ0317"
+
+# CZ districts Hochland (Kraj Vysocina)
+Deutschbrod = "CZ0631"; Iglau = "CZ0632"; Pilgrams = "CZ0633"; Trebic = "CZ0634"; Saar = "CZ0635"
+
+# CZ districts Südmähren (Jihomoravsky kraj)
+Blanz = "CZ0641"; Bruenn_Stadt = "CZ0642"; Bruenn_Land = "CZ0643"; Lundenburg = "CZ0644"; Goeding = "CZ0645"; Wischau = "CZ0646"; Znaim = "CZ0647"
+
+# CZ districts MZlin (Zlinsky kraj)
+Kremsier = "CZ0721"; Ungarisch_Hradisch = "CZ0722"; Wsetin = "CZ0723"; Zlin = "CZ0724"
+
+#Array of CZ Districts
+districtsCZArray = np.array([Eger, Karlsbad, Falkenau,
+                    Tetschen, Komotau, Leitmeritz, Laun, Brux, Teplitz_Schoenau, Aussig,
+                    Boehmisch_Leipa, Gablonz, Reichenberg, Semil,
+                    Koeniggraetz, Jitschin, Nachod, Reichenau_an_der_Knieschna, Trautenau,
+                    Taus, Klattau, Pilsen_Stadt, Pilsen_Sued, Pilsen_Nord, Rokitzan, Tachau,
+                    Beneschau, Beroun,Kladen, Kollin, Kuttenberg, Melnik, Jungbunzlau, Nimburg, Prag_Ost, Prag_West, Freiberg_in_Boehmen, Rakonitz,
+                    Prag,
+                    Chrudim, Pardubitz, Zwittau, Wildenschwert,
+                    Freiwaldau, Olmuetz, Prossnitz, Prerau, Maehrisch_Schoenberg,
+                    Freudenthal, Friedeck_Mistek, Karwin, Neu_Titschein, Troppau, Ostrau_Stadt,
+                    Budweis, Krumau, Neuhaus, Pisek, Prachatiz, Strakonitz, Tabor,
+                    Deutschbrod, Iglau, Pilgrams, Trebic, Saar,
+                    Blanz, Bruenn_Stadt, Bruenn_Land, Lundenburg, Goeding, Wischau, Znaim,
+                    Kremsier, Ungarisch_Hradisch, Wsetin, Zlin])
+
+
+german_array = []
+
+german_district_list = german_origin_data.columns.tolist()
+print("District List: ", german_district_list)
+german_district_list.pop(len(german_district_list)-1)
+german_array = np.array(german_district_list)
+
+def compareAllDistricts():
+    for i in districtsCZArray:
+        temp = getGermanDistrict()
+        print(temp ," (DE) und ", i,"(CZ):")
+        correlation(filtered_german_df, temp, filtered_czech_df, i)
+        print()
+
+def getGermanDistrict():
+    #print('Länge:', len(german_array))
+    x = randrange(0, int(len(german_array) - 2), 1)
+    return german_array[x]
 
 def plot(x1, y1, name_1, x2, y2, name_2, title):
     fig = go.Figure()
@@ -81,7 +147,7 @@ def plot(x1, y1, name_1, x2, y2, name_2, title):
     fig.show()
 
 
-def compareCountries(germandf, german_what, czechdf, czech_what, title):
+def compareCountries(germandf, german_what, czechdf, czech_what):
     #copy cause python wants this
     copy_german = germandf.copy(deep=False)
     copy_cz = czechdf.copy(deep=False)
@@ -106,9 +172,9 @@ def compareCountries(germandf, german_what, czechdf, czech_what, title):
     # czechdf_final_norm = join_date(czechdf, df_norm_cz)
     # print(germandf_final_norm)
 
-    plot(copy_german['date'], copy_german['infected_number'].diff(), german_what,
+    """plot(copy_german['date'], copy_german['infected_number'].diff(), german_what,
          copy_cz['date'], copy_cz['infected_number'].diff(), czech_what,
-         title)
+         title)"""
 
 
 # Correlation
@@ -125,7 +191,7 @@ def correlation(germandf, german_what, czechdf, czech_what):
 
     x1 = merged_df["infected_number"]
     x2 = merged_df["infected_number_de"]
-    print('Merged DF: \n', merged_df)
+    #print('Merged DF: \n', merged_df)
 
     print("Korrelation: ", x2.corr(x1))
 
@@ -182,7 +248,8 @@ print(filtered_german_df)
 
 
 '''Funktionen00'''
-correlation(filtered_german_df, Hof, filtered_czech_df, Eger)
-compareCountries(filtered_german_df, Hof, filtered_czech_df, Eger, 'Hof und Eger')
-print('Tscvhechien: ', filtered_czech_df)
-print('German: ', filtered_german_df)
+compareAllDistricts()
+#correlation(filtered_german_df, Hof, filtered_czech_df, Eger)
+#compareCountries(filtered_german_df, Hof, filtered_czech_df, Eger, 'Hof und Eger')
+#print('Tscvhechien: ', filtered_czech_df)
+#print('German: ', filtered_german_df)
