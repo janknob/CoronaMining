@@ -25,6 +25,10 @@ german_origin_data.drop(['sum_cases', 'time_iso8601'], axis=1, inplace=True)
 filtered_czech_df = czech_origin_data.loc[(czech_origin_data['date'] >= '2020-03-02')
                                           & (czech_origin_data['date'] < '2021-03-02')]
 
+# shifted timeframe Deutsch
+shifted_german_df = german_origin_data.loc[(german_origin_data['date'] >= '2020-03-16')
+                                            & (german_origin_data['date'] < '2021-03-16')]
+
 # filter timeframe Germany
 filtered_german_df = german_origin_data.loc[(german_origin_data['date'] >= '2020-03-02')
                                             & (german_origin_data['date'] < '2021-03-02')]
@@ -107,7 +111,7 @@ districtsCZArray = np.array([Eger, Karlsbad, Falkenau,
 german_array = []
 
 german_district_list = german_origin_data.columns.tolist()
-print("District List: ", german_district_list)
+#print("District List: ", german_district_list)
 german_district_list.pop(len(german_district_list)-1)
 german_array = np.array(german_district_list)
 
@@ -147,7 +151,7 @@ def plot(x1, y1, name_1, x2, y2, name_2, title):
     fig.show()
 
 
-def compareCountries(germandf, german_what, czechdf, czech_what):
+def compareCountries(germandf, german_what, czechdf, czech_what, title):
     #copy cause python wants this
     copy_german = germandf.copy(deep=False)
     copy_cz = czechdf.copy(deep=False)
@@ -158,12 +162,19 @@ def compareCountries(germandf, german_what, czechdf, czech_what):
     copy_cz.drop(copy_cz.columns.difference(['date', 'infected_number']), 1,
                  inplace=True)
 
-    copy_german['infected_number'] = copy_german[german_what]
-    copy_german.drop(copy_german.columns.difference(['date', 'infected_number']), 1,
+    copy_german['infected_number_de'] = copy_german[german_what]
+    copy_german.drop(copy_german.columns.difference(['date', 'infected_number_de']), 1,
                   inplace=True)
 
-    ## Normalization ##
+    #print(copy_cz)
+    #print(copy_german)
+    shifted_merge_df = copy_german.merge(copy_cz)
+    print(shifted_merge_df)
 
+    x1 = shifted_merge_df["infected_number"]
+    x2 = shifted_merge_df["infected_number_de"]
+    print("Korrelation von Normal: ", x2.corr(x1))
+    ## Normalization ##
     # inf_difference(czechdf)
     # inf_difference(germandf)
     ##f_norm_de = min_max_scaling(germandf)
@@ -172,12 +183,48 @@ def compareCountries(germandf, german_what, czechdf, czech_what):
     # czechdf_final_norm = join_date(czechdf, df_norm_cz)
     # print(germandf_final_norm)
 
-    """plot(copy_german['date'], copy_german['infected_number'].diff(), german_what,
-         copy_cz['date'], copy_cz['infected_number'].diff(), czech_what,
-         title)"""
+    plot(copy_german['date'], copy_german['infected_number_de'].diff(), german_what, copy_cz['date'], copy_cz['infected_number'].diff(), czech_what, title)
+
+
+#Shifted Compare Plot
+
+def compareShiftedCountries(germandf, german_what, czechdf, czech_what, title):
+    #copy cause python wants this
+    copy_german = germandf.copy(deep=False)
+    copy_cz = czechdf.copy(deep=False)
+
+    copy_cz.drop(copy_cz.index[(copy_cz["district"] != czech_what)], axis=0,
+                 inplace=True)
+
+    copy_cz.drop(copy_cz.columns.difference(['date', 'infected_number']), 1,
+                 inplace=True)
+
+    copy_german['infected_number_de'] = copy_german[german_what]
+    copy_german.drop(copy_german.columns.difference(['date', 'infected_number_de']), 1,
+                  inplace=True)
+
+    copy_cz.reset_index(drop=True, inplace=True)
+    copy_german.reset_index(drop=True, inplace=True)
+
+
+    temp = copy_cz ['infected_number']
+    copy_cz['date_cz'] = copy_cz ['date']
+
+    temp2 = copy_cz['date_cz']
+    shifted_merge_df = copy_german.join(temp)
+    shifted_merge_df = shifted_merge_df.join(temp2)
+
+    print(shifted_merge_df)
+
+    x1 = shifted_merge_df["infected_number"]
+    x2 = shifted_merge_df["infected_number_de"]
+    print("Korrelation von Verschoben: ", x2.corr(x1))
+
+    plot(shifted_merge_df['date'], shifted_merge_df['infected_number_de'].diff(), german_what, shifted_merge_df['date'], shifted_merge_df['infected_number'].diff(), czech_what, title)
 
 
 # Correlation
+
 def correlation(germandf, german_what, czechdf, czech_what):
     # copy cause python wants this
     copy_german = germandf.copy(deep=False)
@@ -248,7 +295,15 @@ print(filtered_german_df)
 
 
 '''Funktionen00'''
-compareAllDistricts()
+
+compareCountries(filtered_german_df, Hof, filtered_czech_df, Eger, "Hof zu Eger (Normal)")
+print()
+compareShiftedCountries(shifted_german_df, Hof, filtered_czech_df, Eger, "Hof zu Eger (Verschoben)")
+
+#correlation(shifted_german_df, Hof, filtered_czech_df, Eger)
+#correlation(filtered_german_df, Hof, filtered_czech_df, Eger)
+
+#compareAllDistricts()
 #correlation(filtered_german_df, Hof, filtered_czech_df, Eger)
 #compareCountries(filtered_german_df, Hof, filtered_czech_df, Eger, 'Hof und Eger')
 #print('Tscvhechien: ', filtered_czech_df)
