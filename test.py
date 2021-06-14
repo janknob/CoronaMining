@@ -3,7 +3,9 @@ from random import randrange
 import pandas as pd
 import plotly.graph_objs as go
 import numpy as np
-from varname import nameof
+from matplotlib import pyplot as plt
+from plotly.figure_factory._distplot import scipy
+from scipy import stats
 
 pd.options.mode.chained_assignment = None  # default='warn'
 # from sklearn import preprocessing
@@ -169,7 +171,7 @@ def compareCountries(germandf, german_what, czechdf, czech_what, title):
     #print(copy_cz)
     #print(copy_german)
     shifted_merge_df = copy_german.merge(copy_cz)
-    print(shifted_merge_df)
+    #print(shifted_merge_df)
 
     x1 = shifted_merge_df["infected_number"]
     x2 = shifted_merge_df["infected_number_de"]
@@ -214,7 +216,7 @@ def compareShiftedCountries(germandf, german_what, czechdf, czech_what, title):
     shifted_merge_df = copy_german.join(temp)
     shifted_merge_df = shifted_merge_df.join(temp2)
 
-    print(shifted_merge_df)
+    #print(shifted_merge_df)
 
     x1 = shifted_merge_df["infected_number"]
     x2 = shifted_merge_df["infected_number_de"]
@@ -280,31 +282,33 @@ def inf_difference(df):
     print(copy_cz)
 
 
+# Normalization Tests
+
+shapiro_test = stats.shapiro(np.array(filtered_german_df['1003']))
+print(shapiro_test)
+
+plt.hist(filtered_german_df['9475'])
+plt.show()
+
+filtered_czech_df.drop(filtered_czech_df.index[(filtered_czech_df["district"] != Eger)], axis=0, inplace=True)
+u = scipy.stats.mannwhitneyu(filtered_german_df['9475'], filtered_czech_df['infected_number'])
+print(u)
+
+sp = scipy.stats.spearmanr(filtered_german_df['9475'], filtered_czech_df['infected_number'])
+print(sp)
+
+pearson = scipy.stats.pearsonr(filtered_german_df['9475'], filtered_czech_df['infected_number'])
+print(pearson)
+
+
+
 # Functions
-
-# filtered_german_df.drop(['sum_cases'], axis=1, inplace=True)
-'''print(filtered_german_df)
-calcAvg(filtered_german_df)
-print(filtered_german_df)
-'''
-#copy_german = filtered_german_df.copy(deep=False)
-#copy_cz = filtered_czech_df.copy(deep=False)
-
-# test = compareCountries(copy_german, Tirschenreuth, copy_cz, Eger, "Vergleiche Tirschenreuth mit Cheb")
-# inf_difference(copy_cz)
 
 
 '''Funktionen00'''
 
+print()
 compareCountries(filtered_german_df, Hof, filtered_czech_df, Eger, "Hof zu Eger (Normal)")
 print()
 compareShiftedCountries(shifted_german_df, Hof, filtered_czech_df, Eger, "Hof zu Eger (Verschoben)")
 
-#correlation(shifted_german_df, Hof, filtered_czech_df, Eger)
-#correlation(filtered_german_df, Hof, filtered_czech_df, Eger)
-
-#compareAllDistricts()
-#correlation(filtered_german_df, Hof, filtered_czech_df, Eger)
-#compareCountries(filtered_german_df, Hof, filtered_czech_df, Eger, 'Hof und Eger')
-#print('Tscvhechien: ', filtered_czech_df)
-#print('German: ', filtered_german_df)
