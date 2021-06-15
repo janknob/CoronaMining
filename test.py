@@ -6,9 +6,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 from plotly.figure_factory._distplot import scipy
 from scipy import stats
+from varname import nameof
 
 pd.options.mode.chained_assignment = None  # default='warn'
-# from sklearn import preprocessing
+
 
 # import Tscheschien
 czech_origin_data = pd.read_csv('kraj-okres-nakazeni-vyleceni-umrti (1).csv')
@@ -16,8 +17,7 @@ czech_origin_data.columns = ['date', 'state', 'district', 'infected_number', 'he
 czech_origin_data['date'] = pd.to_datetime(czech_origin_data['date'], format='%Y-%m-%d')
 
 # import Germany
-german_origin_data = pd.read_csv(
-    'https://raw.githubusercontent.com/jgehrcke/covid-19-germany-gae/master/cases-rki-by-ags.csv')
+german_origin_data = pd.read_csv('https://raw.githubusercontent.com/jgehrcke/covid-19-germany-gae/master/cases-rki-by-ags.csv')
 german_origin_data['time_iso8601'] = pd.to_datetime(german_origin_data['time_iso8601'])
 german_origin_data['date'] = german_origin_data['time_iso8601'].dt.date
 german_origin_data['date'] = pd.to_datetime(german_origin_data['date'], format='%Y-%m-%d')
@@ -93,7 +93,7 @@ Blanz = "CZ0641"; Bruenn_Stadt = "CZ0642"; Bruenn_Land = "CZ0643"; Lundenburg = 
 # CZ districts MZlin (Zlinsky kraj)
 Kremsier = "CZ0721"; Ungarisch_Hradisch = "CZ0722"; Wsetin = "CZ0723"; Zlin = "CZ0724"
 
-#Array of CZ Districts
+#Array of CZ districts
 districtsCZArray = np.array([Eger, Karlsbad, Falkenau,
                     Tetschen, Komotau, Leitmeritz, Laun, Brux, Teplitz_Schoenau, Aussig,
                     Boehmisch_Leipa, Gablonz, Reichenberg, Semil,
@@ -109,9 +109,8 @@ districtsCZArray = np.array([Eger, Karlsbad, Falkenau,
                     Blanz, Bruenn_Stadt, Bruenn_Land, Lundenburg, Goeding, Wischau, Znaim,
                     Kremsier, Ungarisch_Hradisch, Wsetin, Zlin])
 
-
+# Array of DE districts
 german_array = []
-
 german_district_list = german_origin_data.columns.tolist()
 #print("District List: ", german_district_list)
 german_district_list.pop(len(german_district_list)-1)
@@ -119,10 +118,11 @@ german_array = np.array(german_district_list)
 
 def compareAllDistricts():
     for i in districtsCZArray:
+        print(nameof(i))
         temp = getGermanDistrict()
-        print(temp ," (DE) und ", i,"(CZ):")
-        correlation(filtered_german_df, temp, filtered_czech_df, i)
-        print()
+        #print(temp ," (DE) und ", i,"(CZ):")
+        compareCountries(filtered_german_df, temp, filtered_czech_df, i, (temp, " im Vergleich zu ", i), temp, i)
+
 
 def getGermanDistrict():
     #print('Länge:', len(german_array))
@@ -153,14 +153,14 @@ def plot(x1, y1, name_1, x2, y2, name_2, title):
     fig.show()
 
 
-def compareCountries(germandf, german_what, czechdf, czech_what, title):
+def compareCountries(germandf, german_what, czechdf, czech_what, title, name_de, name_cz):
+
     #copy cause python wants this
     copy_german = germandf.copy(deep=False)
-    copy_cz = czechdf.copy(deep=False)
 
+    copy_cz = czechdf.copy(deep=False)
     copy_cz.drop(copy_cz.index[(copy_cz["district"] != czech_what)], axis=0,
                  inplace=True)
-
     copy_cz.drop(copy_cz.columns.difference(['date', 'infected_number']), 1,
                  inplace=True)
 
@@ -168,14 +168,16 @@ def compareCountries(germandf, german_what, czechdf, czech_what, title):
     copy_german.drop(copy_german.columns.difference(['date', 'infected_number_de']), 1,
                   inplace=True)
 
-    #print(copy_cz)
-    #print(copy_german)
-    shifted_merge_df = copy_german.merge(copy_cz)
-    #print(shifted_merge_df)
 
-    x1 = shifted_merge_df["infected_number"]
-    x2 = shifted_merge_df["infected_number_de"]
-    print("Korrelation von Normal: ", x2.corr(x1))
+    shifted_merge_df = copy_german.merge(copy_cz)
+
+    print()
+    print("----------------------------------------------------------------------")
+    print()
+    print("##### ", name_de, " vergleich zu ", name_cz, " (Normal) #####")
+
+    norm_test(shifted_merge_df)
+
     ## Normalization ##
     # inf_difference(czechdf)
     # inf_difference(germandf)
@@ -185,12 +187,12 @@ def compareCountries(germandf, german_what, czechdf, czech_what, title):
     # czechdf_final_norm = join_date(czechdf, df_norm_cz)
     # print(germandf_final_norm)
 
-    plot(copy_german['date'], copy_german['infected_number_de'].diff(), german_what, copy_cz['date'], copy_cz['infected_number'].diff(), czech_what, title)
+    #plot(copy_german['date'], copy_german['infected_number_de'].diff(), name_de, copy_cz['date'], copy_cz['infected_number'].diff(), name_cz, title)
 
 
 #Shifted Compare Plot
 
-def compareShiftedCountries(germandf, german_what, czechdf, czech_what, title):
+def compareShiftedCountries(germandf, german_what, czechdf, czech_what, title, name_de, name_cz):
     #copy cause python wants this
     copy_german = germandf.copy(deep=False)
     copy_cz = czechdf.copy(deep=False)
@@ -216,13 +218,14 @@ def compareShiftedCountries(germandf, german_what, czechdf, czech_what, title):
     shifted_merge_df = copy_german.join(temp)
     shifted_merge_df = shifted_merge_df.join(temp2)
 
-    #print(shifted_merge_df)
+    print()
+    print("----------------------------------------------------------------------")
+    print()
+    print("##### ", name_de, " vergleich zu ", name_cz, " (Verschoben um 2 Wochen) #####")
 
-    x1 = shifted_merge_df["infected_number"]
-    x2 = shifted_merge_df["infected_number_de"]
-    print("Korrelation von Verschoben: ", x2.corr(x1))
+    norm_test(shifted_merge_df)
 
-    plot(shifted_merge_df['date'], shifted_merge_df['infected_number_de'].diff(), german_what, shifted_merge_df['date'], shifted_merge_df['infected_number'].diff(), czech_what, title)
+    plot(shifted_merge_df['date'], shifted_merge_df['infected_number_de'].diff(), name_de, shifted_merge_df['date'], shifted_merge_df['infected_number'].diff(), name_cz, title)
 
 
 # Correlation
@@ -279,26 +282,40 @@ def join_date(df_date, df_norm):
 
 def inf_difference(df):
     df['inf_dif'] = df['infected_number'].diff()
-    print(copy_cz)
+
 
 
 # Normalization Tests
 
-shapiro_test = stats.shapiro(np.array(filtered_german_df['1003']))
-print(shapiro_test)
+def norm_test(df):
+    copy_df = df.copy(deep=False)
+    print()
+    print("Shapiro Test: ")
+    shapiro_test = stats.shapiro(np.array(copy_df['infected_number_de']))
+    print(shapiro_test)
 
-plt.hist(filtered_german_df['9475'])
-plt.show()
+    plt.hist(copy_df['infected_number_de'])
+    plt.show()
 
-filtered_czech_df.drop(filtered_czech_df.index[(filtered_czech_df["district"] != Eger)], axis=0, inplace=True)
-u = scipy.stats.mannwhitneyu(filtered_german_df['9475'], filtered_czech_df['infected_number'])
-print(u)
+    print()
+    print("Mann-Whitney-U Test (Infektionen/Tag): ")
+    u = scipy.stats.mannwhitneyu(copy_df['infected_number_de'].diff(), copy_df['infected_number'].diff())
+    print(u)
 
-sp = scipy.stats.spearmanr(filtered_german_df['9475'], filtered_czech_df['infected_number'])
-print(sp)
+    print()
+    print("Mann-Whitney-U Test (Summe): ")
+    v = scipy.stats.mannwhitneyu(copy_df['infected_number_de'], copy_df['infected_number'])
+    print(v)
 
-pearson = scipy.stats.pearsonr(filtered_german_df['9475'], filtered_czech_df['infected_number'])
-print(pearson)
+    print()
+    print("Spearman: ")
+    sp = scipy.stats.spearmanr(copy_df['infected_number_de'], copy_df['infected_number'])
+    print(sp)
+
+    print()
+    print("Pearson: ")
+    pearson = scipy.stats.pearsonr(copy_df['infected_number_de'], copy_df['infected_number'])
+    print(pearson)
 
 
 
@@ -307,8 +324,17 @@ print(pearson)
 
 '''Funktionen00'''
 
-print()
-compareCountries(filtered_german_df, Hof, filtered_czech_df, Eger, "Hof zu Eger (Normal)")
-print()
-compareShiftedCountries(shifted_german_df, Hof, filtered_czech_df, Eger, "Hof zu Eger (Verschoben)")
+# Hier Landkreise austauschen (rechte Seite)
+cz_district = Eger
+cz_name = nameof(Eger)
+
+de_district = Hof
+de_name = nameof(Hof)
+
+#Funktionsaufrufe
+compareCountries(filtered_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Normal)"), de_name, cz_name)
+compareShiftedCountries(shifted_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Verschoben)"), de_name, cz_name)
+
+compareAllDistricts()
+
 
