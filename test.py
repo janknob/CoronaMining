@@ -27,14 +27,12 @@ german_origin_data.drop(['sum_cases', 'time_iso8601'], axis=1, inplace=True)
 
 german_district_keys = pd.read_csv('de_districts_keys.csv')
 print(german_district_keys)
-copy_german_district_keys = german_district_keys.copy(deep = False)
-copy_german_district_keys.set_index('keys')
+
 temp = '16074'
 german_district_keys.drop(german_district_keys.index[(german_district_keys["keys"] != temp)], axis=0,
                  inplace=True)
-#copy_german_district_keys = copy_german_district_keys.drop("16074", axis = 0)
-#new_df = copy_german_district_keys[copy_german_district_keys[] == temp]
-print("Datensatz: ", german_district_keys)
+
+print("Datensatz Neu: ", german_district_keys)
 
 # filter timeframe Tschechien
 filtered_czech_df = czech_origin_data.loc[(czech_origin_data['date'] >= '2020-03-02')
