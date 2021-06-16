@@ -163,22 +163,13 @@ Ungarisch_Hradisch = "CZ0722";
 Wsetin = "CZ0723";
 Zlin = "CZ0724"
 
+
 # Array of CZ districts
-districtsCZArray = np.array([Eger, Karlsbad, Falkenau,
-                             Tetschen, Komotau, Leitmeritz, Laun, Brux, Teplitz_Schoenau, Aussig,
-                             Boehmisch_Leipa, Gablonz, Reichenberg, Semil,
-                             Koeniggraetz, Jitschin, Nachod, Reichenau_an_der_Knieschna, Trautenau,
-                             Taus, Klattau, Pilsen_Stadt, Pilsen_Sued, Pilsen_Nord, Rokitzan, Tachau,
-                             Beneschau, Beroun, Kladen, Kollin, Kuttenberg, Melnik, Jungbunzlau, Nimburg, Prag_Ost,
-                             Prag_West, Freiberg_in_Boehmen, Rakonitz,
-                             Prag,
-                             Chrudim, Pardubitz, Zwittau, Wildenschwert,
-                             Freiwaldau, Olmuetz, Prossnitz, Prerau, Maehrisch_Schoenberg,
-                             Freudenthal, Friedeck_Mistek, Karwin, Neu_Titschein, Troppau, Ostrau_Stadt,
-                             Budweis, Krumau, Neuhaus, Pisek, Prachatiz, Strakonitz, Tabor,
-                             Deutschbrod, Iglau, Pilgrams, Trebic, Saar,
-                             Blanz, Bruenn_Stadt, Bruenn_Land, Lundenburg, Goeding, Wischau, Znaim,
-                             Kremsier, Ungarisch_Hradisch, Wsetin, Zlin])
+czech_array = []
+czech_district_list = czech_district_keys.columns.tolist()
+# print("District List: ", german_district_list)
+#czech_district_keys.pop(len(czech_district_keys) - 1)
+czech_array = np.array(czech_district_keys['CZ_LKR_Schlüssel'])
 
 # Array of DE districts
 german_array = []
@@ -191,17 +182,17 @@ german_array = np.array(german_district_list)
 # print(german_array)
 
 def compareAllDistricts():
-    for i in districtsCZArray:
+    for i in czech_array:
         temp = getGermanDistrict()
+        temp2 = i
 
         new_df = german_district_keys.query("keys == @temp")
         name = new_df.iloc[0]['name']
 
-        new_df2 = czech_district_keys.query("CZ LKR Schlüssel == @i")
-        name2 = new_df2.iloc[0]['CZ LKR Name']
-        print(name2)
+        new_df2 = czech_district_keys.query("CZ_LKR_Schlüssel == @temp2")
+        name2 = new_df2.iloc[0]['CZ_LKR_Name']
 
-        compareCountries(filtered_german_df, temp, filtered_czech_df, i, (name, " im Vergleich zu ", i), name, i)
+        compareCountries(filtered_german_df, temp, filtered_czech_df, i, (name, " im Vergleich zu ", name2), name, name2)
 
 
 def getGermanDistrict():
@@ -256,15 +247,6 @@ def compareCountries(germandf, german_what, czechdf, czech_what, title, name_de,
     print("##### ", name_de, " vergleich zu ", name_cz, " (Normal) #####")
 
     norm_test(shifted_merge_df)
-
-    ## Normalization ##
-    # inf_difference(czechdf)
-    # inf_difference(germandf)
-    ##f_norm_de = min_max_scaling(germandf)
-    # df_norm_cz = min_max_scaling(czechdf)
-    # germandf_final_norm = join_date(germandf, df_norm_de)
-    # czechdf_final_norm = join_date(czechdf, df_norm_cz)
-    # print(germandf_final_norm)
 
     # plot(copy_german['date'], copy_german['infected_number_de'].diff(), name_de, copy_cz['date'], copy_cz['infected_number'].diff(), name_cz, title)
 
@@ -372,8 +354,8 @@ def norm_test(df):
     shapiro_test = stats.shapiro(np.array(copy_df['infected_number_de']))
     print(shapiro_test)
 
-    plt.hist(copy_df['infected_number_de'])
-    plt.show()
+    #plt.hist(copy_df['infected_number_de'])
+    #plt.show()
 
     print()
     print("Mann-Whitney-U Test (Infektionen/Tag): ")
@@ -409,7 +391,7 @@ de_district = Hof
 de_name = nameof(Hof)
 
 # Funktionsaufrufe
-# compareCountries(filtered_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Normal)"), de_name, cz_name)
-# compareShiftedCountries(shifted_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Verschoben)"), de_name, cz_name)
+compareCountries(filtered_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Normal)"), de_name, cz_name)
+compareShiftedCountries(shifted_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Verschoben)"), de_name, cz_name)
 
-compareAllDistricts()
+#compareAllDistricts()
