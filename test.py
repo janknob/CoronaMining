@@ -23,6 +23,19 @@ german_origin_data['date'] = german_origin_data['time_iso8601'].dt.date
 german_origin_data['date'] = pd.to_datetime(german_origin_data['date'], format='%Y-%m-%d')
 german_origin_data.drop(['sum_cases', 'time_iso8601'], axis=1, inplace=True)
 
+#import Germany-District-Keys
+
+german_district_keys = pd.read_csv('de_districts_keys.csv')
+print(german_district_keys)
+copy_german_district_keys = german_district_keys.copy(deep = False)
+copy_german_district_keys.set_index('keys')
+temp = '16074'
+german_district_keys.drop(german_district_keys.index[(german_district_keys["keys"] != temp)], axis=0,
+                 inplace=True)
+#copy_german_district_keys = copy_german_district_keys.drop("16074", axis = 0)
+#new_df = copy_german_district_keys[copy_german_district_keys[] == temp]
+print("Datensatz: ", german_district_keys)
+
 # filter timeframe Tschechien
 filtered_czech_df = czech_origin_data.loc[(czech_origin_data['date'] >= '2020-03-02')
                                           & (czech_origin_data['date'] < '2021-03-02')]
@@ -115,13 +128,20 @@ german_district_list = german_origin_data.columns.tolist()
 #print("District List: ", german_district_list)
 german_district_list.pop(len(german_district_list)-1)
 german_array = np.array(german_district_list)
+#print(german_array)
 
 def compareAllDistricts():
     for i in districtsCZArray:
-        print(nameof(i))
+
         temp = getGermanDistrict()
+        #print(german_district_keys)
+        copy_german_district_keys = german_district_keys.copy(deep = False)
+        copy_german_district_keys.drop(copy_german_district_keys.index[(copy_german_district_keys["keys"] != temp)], axis=0,
+                     inplace=True)
+        #new_df = copy_german_district_keys[copy_german_district_keys[] == temp]
+        print("Datensatz: ", copy_german_district_keys)
         #print(temp ," (DE) und ", i,"(CZ):")
-        compareCountries(filtered_german_df, temp, filtered_czech_df, i, (temp, " im Vergleich zu ", i), temp, i)
+        #compareCountries(filtered_german_df, temp, filtered_czech_df, i, (temp, " im Vergleich zu ", i), temp, i)
 
 
 def getGermanDistrict():
@@ -332,9 +352,9 @@ de_district = Hof
 de_name = nameof(Hof)
 
 #Funktionsaufrufe
-compareCountries(filtered_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Normal)"), de_name, cz_name)
-compareShiftedCountries(shifted_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Verschoben)"), de_name, cz_name)
+#compareCountries(filtered_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Normal)"), de_name, cz_name)
+#compareShiftedCountries(shifted_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Verschoben)"), de_name, cz_name)
 
-compareAllDistricts()
+#compareAllDistricts()
 
 
