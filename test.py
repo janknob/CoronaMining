@@ -33,6 +33,7 @@ temp = '16074'
                           #inplace=True)
 new_df = german_district_keys.query("keys == '1001'")
 print("Datensatz Neu: ", new_df['name'])
+print(new_df)
 
 # filter timeframe Tschechien
 filtered_czech_df = czech_origin_data.loc[(czech_origin_data['date'] >= '2020-03-02')
@@ -197,15 +198,13 @@ german_array = np.array(german_district_list)
 def compareAllDistricts():
     for i in districtsCZArray:
         temp = getGermanDistrict()
-        # print(german_district_keys)
-        copy_german_district_keys = german_district_keys.copy(deep=False)
-        copy_german_district_keys.drop(copy_german_district_keys.index[(copy_german_district_keys["keys"] != temp)],
-                                       axis=0,
-                                       inplace=True)
-        # new_df = copy_german_district_keys[copy_german_district_keys[] == temp]
-        print("Datensatz: ", copy_german_district_keys)
-        # print(temp ," (DE) und ", i,"(CZ):")
-        # compareCountries(filtered_german_df, temp, filtered_czech_df, i, (temp, " im Vergleich zu ", i), temp, i)
+        print("Temporäre dinger: ", temp)
+        new_df = german_district_keys.query("keys == @temp")
+        print("Datensatz Neu: ", new_df['name'])
+        name = new_df.iloc[0]['name']
+        print("Nmae isrt: ", name)
+        print(name, " (DE) und ", i, "(CZ):")
+        compareCountries(filtered_german_df, temp, filtered_czech_df, i, (name, " im Vergleich zu ", i), name, i)
 
 
 def getGermanDistrict():
@@ -416,4 +415,4 @@ de_name = nameof(Hof)
 # compareCountries(filtered_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Normal)"), de_name, cz_name)
 # compareShiftedCountries(shifted_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Verschoben)"), de_name, cz_name)
 
-# compareAllDistricts()
+compareAllDistricts()
