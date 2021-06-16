@@ -24,16 +24,11 @@ german_origin_data['date'] = pd.to_datetime(german_origin_data['date'], format='
 german_origin_data.drop(['sum_cases', 'time_iso8601'], axis=1, inplace=True)
 
 # import Germany-District-Keys
-
 german_district_keys = pd.read_csv('de_districts_keys.csv')
-print(german_district_keys)
 
-temp = '16074'
-#german_district_keys.drop(german_district_keys.index[(german_district_keys["keys"] != temp)], axis=0,
-                          #inplace=True)
-new_df = german_district_keys.query("keys == '1001'")
-print("Datensatz Neu: ", new_df['name'])
-print(new_df)
+# import Germany-District-Keys
+czech_district_keys = pd.read_csv('cz_districts_keys.csv')
+print(czech_district_keys)
 
 # filter timeframe Tschechien
 filtered_czech_df = czech_origin_data.loc[(czech_origin_data['date'] >= '2020-03-02')
@@ -198,12 +193,14 @@ german_array = np.array(german_district_list)
 def compareAllDistricts():
     for i in districtsCZArray:
         temp = getGermanDistrict()
-        print("Temporäre dinger: ", temp)
+
         new_df = german_district_keys.query("keys == @temp")
-        print("Datensatz Neu: ", new_df['name'])
         name = new_df.iloc[0]['name']
-        print("Nmae isrt: ", name)
-        print(name, " (DE) und ", i, "(CZ):")
+
+        new_df2 = czech_district_keys.query("CZ LKR Schlüssel == @i")
+        name2 = new_df2.iloc[0]['CZ LKR Name']
+        print(name2)
+
         compareCountries(filtered_german_df, temp, filtered_czech_df, i, (name, " im Vergleich zu ", i), name, i)
 
 
