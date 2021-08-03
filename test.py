@@ -5,6 +5,7 @@ from random import randrange
 from matplotlib import pyplot as plt
 from plotly.figure_factory._distplot import scipy
 from scipy import stats
+import seaborn as sns
 from varname import nameof
 
 pd.options.mode.chained_assignment = None  # default='warn'
@@ -43,19 +44,22 @@ shifted_german_df = german_origin_data.loc[(german_origin_data['date'] >= '2020-
 # Array of all CZ districts from the help csv file "czech_district_keys"
 czech_array = []
 czech_district_list = czech_district_keys.columns.tolist()
-czech_array = np.array(czech_district_keys['CZ_LKR_Schlüssel'])
+czech_array = np.array(czech_district_keys['CZ_LKR_Name'])
 
 # Array of all DE districts from the help csv file "german_district_keys"
 german_array = []
-german_district_list = german_origin_data.columns.tolist()
+'''german_district_list = german_origin_data.columns.tolist()
 german_district_list.pop(len(german_district_list) - 1)
-german_array = np.array(german_district_list)
+german_array = np.array(german_district_list)'''
+
+german_district_list = german_district_keys.columns.tolist()
+german_array = np.array(german_district_keys['name'])
 
 # Array of all CZ border districts
 germanBorderDistricts_array = ["Freyung-Grafenau", "Regen", "Cham", "Schwandorf", "Neustadt a.d.Waldnaab",
-                                  "Tirschenreuth", "Wunsiedel i.Fichtelgebirge", "Hof", "Vogtlandkreis",
-                                  "Erzgebirgskreis", "Mittelsachsen", "Sächsische Schweiz-Osterzgebirge", "Bautzen",
-                                  "Görlitz"]
+                               "Tirschenreuth", "Wunsiedel i.Fichtelgebirge", "Hof", "Vogtlandkreis",
+                               "Erzgebirgskreis", "Mittelsachsen", "Sächsische Schweiz-Osterzgebirge", "Bautzen",
+                               "Görlitz"]
 
 # Array of all DE border districts
 czechBorderDistricts_array = ["Prachatiz (Prachatice)", "Klattau (Klatovy)", "Taus (Domažlice)", "Tachau (Tachov)",
@@ -63,33 +67,31 @@ czechBorderDistricts_array = ["Prachatiz (Prachatice)", "Klattau (Klatovy)", "Ta
                               "Brux (Most)", "Teplitz-Schönau (Teplice)", "Aussig (Ústí nad Labem)", "Tetschen (Děčín)",
                               "Böhmisch Leipa (Česká Lípa)"]
 
+
 #  Method comparing all Czech districts with random German districts,
 #  and outputting the Shapiro test, Pearson test, and Whitney U test for each comparison.
 def compareAllDistricts():
     for i in czech_array:
         temp = getGermanDistrict()
-        new_df = german_district_keys.query("keys == @temp")
-        name = new_df.iloc[0]['name']
-        new_df2 = czech_district_keys.query("CZ_LKR_Schlüssel == @temp2")
-        name2 = new_df2.iloc[0]['CZ_LKR_Name']
 
-        compareCountriesDistricts(filtered_german_df, temp, filtered_czech_df, i, (name, " im Vergleich zu ", name2), name,
-                         name2)
+        compareCountriesDistricts(filtered_german_df, searchLKS(temp), filtered_czech_df, searchNutCode(i),
+                                  (temp, " im Vergleich zu ", i), temp,
+                                  i)
+
 
 # Method that compares all German border districts with random German districts,
 # and outputting the Shapiro test, Pearson test, and Whitney U test for each comparison.
 def compareRandomGermanDistricts(array):
     for i in germanBorderDistricts_array:
         temp = getGermanDistrict()
-        new_df = german_district_keys.query("keys == @temp")
-        name = new_df.iloc[0]['name']
 
-        compareGermanDistricts(filtered_german_df, temp, filtered_german_df, searchLKS(i), (name, " im Vergleich zu ", i), name,
-                         i)
+        compareGermanDistricts(filtered_german_df, searchLKS(temp), filtered_german_df, searchLKS(i),
+                               (temp, " im Vergleich zu ", i), temp,
+                               i)
+
 
 # help method fo compareRandomGermanDistricts() that creates a merged dataframe with two districts
 def compareGermanDistricts(germandf, german_what, germandf2, german_what2, title, name_de, name_de2):
-
     copy_german = germandf.copy(deep=False)
     copy_german2 = germandf2.copy(deep=False)
 
@@ -98,7 +100,7 @@ def compareGermanDistricts(germandf, german_what, germandf2, german_what2, title
                      inplace=True)
     copy_german2['infected_number'] = copy_german2[german_what2]
     copy_german2.drop(copy_german2.columns.difference(['date', 'infected_number']), 1,
-                     inplace=True)
+                      inplace=True)
 
     shifted_merge_df = copy_german.merge(copy_german2)
     print()
@@ -108,13 +110,16 @@ def compareGermanDistricts(germandf, german_what, germandf2, german_what2, title
 
     test(shifted_merge_df)
 
+
 #   plot(copy_german['date'], copy_german['infected_number_de'].diff(), name_de, copy_cz['date'],
 #        copy_cz['infected_number'].diff(), name_cz, title)
 
 # method that returns a random german district
 def getGermanDistrict():
     x = randrange(0, int(len(german_array) - 2), 1)
+    print(german_array[x])
     return german_array[x]
+
 
 # method for plotting a line graph with two districts an their infection numbers and dates
 def plot(x1, y1, name_1, x2, y2, name_2, title):
@@ -139,6 +144,7 @@ def plot(x1, y1, name_1, x2, y2, name_2, title):
     fig.update_layout(height=800, width=2000, title_text=title)
     fig.show()
 
+
 # method that is given a district name and returns the district NUT-Code
 def searchNutCode(name):
     czData = czech_district_keys.copy(deep=False)
@@ -149,6 +155,7 @@ def searchNutCode(name):
     key = czData.iloc[0]['CZ_LKR_Schlüssel']
     return key
 
+
 # method that is given a district name and returns the district key
 def searchLKS(name):
     germanData = german_district_keys.copy(deep=False)
@@ -158,6 +165,7 @@ def searchLKS(name):
 
     key = germanData.iloc[0]['keys']
     return str(key)
+
 
 # method that compares a german and czech district
 def compareCountriesDistricts(germandf, german_what, czechdf, czech_what, title, name_de, name_cz):
@@ -180,6 +188,7 @@ def compareCountriesDistricts(germandf, german_what, czechdf, czech_what, title,
     print("##### ", name_de, " vergleich zu ", name_cz, " (Normal) #####")
 
     test(shifted_merge_df)
+
 
 # !!! Comment out this method, otherwise a plot will be created every time !!!
 #    plot(copy_german['date'], copy_german['infected_number_de'].diff(), name_de, copy_cz['date'],
@@ -219,6 +228,8 @@ def compareShiftedCountries(germandf, german_what, czechdf, czech_what, title, n
 
     test(shifted_merge_df)
     # !!! Comment out this method, otherwise a plot will be created every time !!!a
+
+
 #    plot(shifted_merge_df['date'], shifted_merge_df['infected_number_de'].diff(), name_de, shifted_merge_df['date'],
 #        shifted_merge_df['infected_number'].diff(), name_cz, title)
 
@@ -241,10 +252,12 @@ def correlation(germandf, german_what, czechdf, czech_what):
 
     print("Korrelation: ", x2.corr(x1))
 
+
 # Average
 def calcAvg(df):
     df['daily_avg'] = round(df.mean(axis=1), 2)
     return df
+
 
 # Normalisation
 def min_max_scaling(df):
@@ -256,6 +269,7 @@ def min_max_scaling(df):
     df_norm.drop(['date'], axis=1, inplace=True)
     return df_norm
 
+
 # method that creates a dataframe from a df with a date and a df with data
 def join_date(df_date, df_norm):
     df_copy = df_date.copy(deep=False)
@@ -264,9 +278,11 @@ def join_date(df_date, df_norm):
     joined_df = df_copy.join(df_norm)
     return joined_df
 
+
 # Difference
 def inf_difference(df):
     df['inf_dif'] = df['infected_number'].diff()
+
 
 # method that performs all the different important tests
 def test(df):
@@ -292,54 +308,63 @@ def test(df):
     v = scipy.stats.mannwhitneyu(copy_df['infected_number_de'], copy_df['infected_number'])
     print(v)
 
+    # gives the relative result of the U-Test dependent on the population
+    # change the hard-coded values of the population of the districts. Unfortunately there is no free of charge .csv out there
     print()
     print("Mann-Whitney-U Test (Relativ): ")
-    v2 = scipy.stats.mannwhitneyu(copy_df['infected_number_de'] / 94522, copy_df['infected_number'] / 32071)
+    v2 = scipy.stats.mannwhitneyu(copy_df['infected_number_de'] / 254894, copy_df['infected_number'] / 103135)
     print(v2)
-    print(copy_df['infected_number_de'] / 94522, copy_df['infected_number'] / 32071)
+    print(copy_df['infected_number_de'] / 254894, copy_df['infected_number'] / 103135)
 
     print()
     print("Spearman: ")
     sp = scipy.stats.spearmanr(copy_df['infected_number_de'], copy_df['infected_number'])
     print(sp)
+    plotCorrelation(copy_df)
 
     print()
     print("Pearson: ")
     pearson = scipy.stats.pearsonr(copy_df['infected_number_de'], copy_df['infected_number'])
     print(pearson)
 
+def plotCorrelation(df):
+    plt.scatter('infected_number_de', 'infected_number', data=pd)
+    plt.title('Correlation')
+    plt.show()
 
-'''Funktionen'''
 
-# Hier deutsche Landkreise austauschen
+'''FUNCTIONS'''
 
-cz_district = "Böhmisch Leipa (Česká Lípa)"
+# here you can change districts (notice: use exact names from cz_district_keys.csv and de_district_keys.csv)
 
-de_district = "Görlitz"
+cz_district = "Tetschen (Děčín)"
 
-de_district2 = "Gießen" #Für innerdeutschen Vergleich
+de_district = "Bautzen"
 
-'''Funktisaufrufe'''
+de_district2 = "Gießen"  # for german inner districts comparison
 
-#Method that compares one specific german and czech district
+'''FUNCTION CALLS'''
+
+# Method that compares one specific german and czech district
 
 #compareCountriesDistricts(filtered_german_df, searchLKS(de_district), filtered_czech_df, searchNutCode(cz_district),
-#                 (de_district + " zu " + cz_district + " (Normal)"), de_district, cz_district)
-#-----------------------------------------------------------------------------------------------------------------------
-#Method that compares one shifted german district and czech district
+ #                (de_district + " zu " + cz_district + " (Normal)"), de_district, cz_district)
+# -----------------------------------------------------------------------------------------------------------------------
+# Method that compares one shifted german district and czech district
 
-# compareShiftedCountries(shifted_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Verschoben)"), de_name, cz_name)
-#-----------------------------------------------------------------------------------------------------------------------
-#Method that compares two specific german districts
+compareShiftedCountries(shifted_german_df, searchLKS(de_district), filtered_czech_df, searchNutCode(cz_district), (de_district + " zu " + cz_district + " (Verschoben)"), de_district, cz_district)
+# -----------------------------------------------------------------------------------------------------------------------
+# Method that compares two specific german districts
 
-#compareGermanDistricts(filtered_german_df, searchLKS(de_district), filtered_german_df, searchLKS(de_district2),
-                       #(de_district + " zu " + de_district2 + " (Normal)"), de_district, de_district2)
-#-----------------------------------------------------------------------------------------------------------------------
-#Method that compares all german border Districts with random german inner districts
+# compareGermanDistricts(filtered_german_df, searchLKS(de_district), filtered_german_df, searchLKS(de_district2),
+# (de_district + " zu " + de_district2 + " (Normal)"), de_district, de_district2)
+# -----------------------------------------------------------------------------------------------------------------------
+# Method that compares all german border Districts with random german inner districts
 
-compareRandomGermanDistricts(germanBorderDistricts_array)
-#-----------------------------------------------------------------------------------------------------------------------
+#compareRandomGermanDistricts(germanBorderDistricts_array)
+# -----------------------------------------------------------------------------------------------------------------------
 # Method for Comparing all Czech Districts with random German districts
 
 #compareAllDistricts()
+
 
