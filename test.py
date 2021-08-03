@@ -28,7 +28,6 @@ german_district_keys = pd.read_csv('de_districts_keys.csv')
 
 # import Germany-District-Keys
 czech_district_keys = pd.read_csv('cz_districts_keys.csv')
-print(czech_district_keys)
 
 # filter timeframe Tschechien
 filtered_czech_df = czech_origin_data.loc[(czech_origin_data['date'] >= '2020-03-02')
@@ -42,133 +41,11 @@ shifted_german_df = german_origin_data.loc[(german_origin_data['date'] >= '2020-
 filtered_german_df = german_origin_data.loc[(german_origin_data['date'] >= '2020-03-02')
                                             & (german_origin_data['date'] < '2021-03-02')]
 
-# DE  border districts
-Freyung_Grafenau = "9272"
-Regen = "9276"
-Cham = "9372"
-Schwandorf = "9376"
-Neudstadt_Waldnaab = "9374"
-Tirschenreuth = "9377"
-Wunsiedel = "9479"
-Hof = "9475"
-Vogtlandkreis = "14523"
-Erzgebirgskreis = "14521"
-Mittelsachsen = "14522"
-Sächsische_Schweiz = "14628"
-Bautzen = "14625"
-Görlitz = "14626"
-
-# CZ districts Karlsbad (Karlovarsky kraj)
-Eger = "CZ0411";
-Karlsbad = "CZ0412";
-Falkenau = "CZ0413"
-
-# CZ districts Aussig (Ustecky kraj)
-Tetschen = "CZ0421";
-Komotau = "CZ0422";
-Leitmeritz = "CZ0423";
-Laun = "CZ0424";
-Brux = "CZ0425";
-Teplitz_Schoenau = "CZ0426";
-Aussig = "CZ0427"
-
-# CZ districts Reichenberg (Liberecky kraj)
-Boehmisch_Leipa = "CZ0511";
-Gablonz = "CZ0512";
-Reichenberg = "CZ0513";
-Semil = "CZ0514"
-
-# CZ districts Königgrätz (Kralovehradecky kraj)
-Koeniggraetz = "CZ0521";
-Jitschin = "CZ0522";
-Nachod = "CZ0523";
-Reichenau_an_der_Knieschna = "CZ0524";
-Trautenau = "CZ0525"
-
-# CZ districts Pilsen (Plzensky kraj)
-Taus = "CZ0321";
-Klattau = "CZ0322";
-Pilsen_Stadt = "CZ0323";
-Pilsen_Sued = "CZ0324";
-Pilsen_Nord = "CZ0325";
-Rokitzan = "CZ0326";
-Tachau = "CZ0327"
-
-# CZ districts Mittelböhmen (Stredocesky kraj)
-Beneschau = "CZ0201";
-Beroun = "CZ0202";
-Kladen = "CZ0203";
-Kollin = "CZ0204";
-Kuttenberg = "CZ0205";
-Melnik = "CZ0206";
-Jungbunzlau = "CZ0207";
-Nimburg = "CZ0208";
-Prag_Ost = "CZ0209";
-Prag_West = "CZ020A";
-Freiberg_in_Boehmen = "CZ020B";
-Rakonitz = "CZ020C"
-
-# CZ districts Prag (Praha)
-Prag = "CZ0100"
-
-# CZ districts Pardubitz (Pardubicky kraj)
-Chrudim = "CZ0531";
-Pardubitz = "CZ0532";
-Zwittau = "CZ0533";
-Wildenschwert = "CZ0534"
-
-# CZ districts Olmütz (Olomoucky kraj)
-Freiwaldau = "CZ0711";
-Olmuetz = "CZ0712";
-Prossnitz = "CZ0713";
-Prerau = "CZ0714";
-Maehrisch_Schoenberg = "CZ0715"
-
-# CZ districts Mähren-Schlesien (Moravskoslezky kraj)
-Freudenthal = "CZ0801";
-Friedeck_Mistek = "CZ0802";
-Karwin = "CZ0803";
-Neu_Titschein = "CZ0804";
-Troppau = "CZ0805";
-Ostrau_Stadt = "CZ0806"
-
-# CZ districts Mähren-Schlesien (Moravskoslezky kraj)
-Budweis = "CZ0311";
-Krumau = "CZ0312";
-Neuhaus = "CZ0313";
-Pisek = "CZ0314";
-Prachatiz = "CZ0315";
-Strakonitz = "CZ0316";
-Tabor = "CZ0317"
-
-# CZ districts Hochland (Kraj Vysocina)
-Deutschbrod = "CZ0631";
-Iglau = "CZ0632";
-Pilgrams = "CZ0633";
-Trebic = "CZ0634";
-Saar = "CZ0635"
-
-# CZ districts Südmähren (Jihomoravsky kraj)
-Blanz = "CZ0641";
-Bruenn_Stadt = "CZ0642";
-Bruenn_Land = "CZ0643";
-Lundenburg = "CZ0644";
-Goeding = "CZ0645";
-Wischau = "CZ0646";
-Znaim = "CZ0647"
-
-# CZ districts MZlin (Zlinsky kraj)
-Kremsier = "CZ0721";
-Ungarisch_Hradisch = "CZ0722";
-Wsetin = "CZ0723";
-Zlin = "CZ0724"
-
-
 # Array of CZ districts
 czech_array = []
 czech_district_list = czech_district_keys.columns.tolist()
 # print("District List: ", german_district_list)
-#czech_district_keys.pop(len(czech_district_keys) - 1)
+# czech_district_keys.pop(len(czech_district_keys) - 1)
 czech_array = np.array(czech_district_keys['CZ_LKR_Schlüssel'])
 
 # Array of DE districts
@@ -192,7 +69,49 @@ def compareAllDistricts():
         new_df2 = czech_district_keys.query("CZ_LKR_Schlüssel == @temp2")
         name2 = new_df2.iloc[0]['CZ_LKR_Name']
 
-        compareCountries(filtered_german_df, temp, filtered_czech_df, i, (name, " im Vergleich zu ", name2), name, name2)
+        compareCountries(filtered_german_df, temp, filtered_czech_df, i, (name, " im Vergleich zu ", name2), name,
+                         name2)
+
+
+def compareRandomGermanDistricts():
+    germanBorderDistricts_array = ["Freyung-Grafenau", "Regen", "Cham", "Schwandorf", "Neustadt a.d.Waldnaab",
+                                  "Tirschenreuth", "Wunsiedel i.Fichtelgebirge", "Hof", "Vogtlandkreis",
+                                  "Erzgebirgskreis", "Mittelsachsen", "Sächsische Schweiz-Osterzgebirge", "Bautzen",
+                                  "Görlitz"]
+
+    for i in germanBorderDistricts_array:
+        temp = getGermanDistrict()
+        temp2 = i
+
+        new_df = german_district_keys.query("keys == @temp")
+        name = new_df.iloc[0]['name']
+
+        compareGermanDistricts(filtered_german_df, temp, filtered_german_df, searchLKS(i), (name, " im Vergleich zu ", i), name,
+                         i)
+
+
+def compareGermanDistricts(germandf, german_what, germandf2, german_what2, title, name_de, name_de2):
+
+    copy_german = germandf.copy(deep=False)
+    copy_german2 = germandf2.copy(deep=False)
+
+    copy_german['infected_number_de'] = copy_german[german_what]
+    copy_german.drop(copy_german.columns.difference(['date', 'infected_number_de']), 1,
+                     inplace=True)
+
+
+    copy_german2['infected_number'] = copy_german2[german_what2]
+    copy_german2.drop(copy_german2.columns.difference(['date', 'infected_number']), 1,
+                     inplace=True)
+
+    shifted_merge_df = copy_german.merge(copy_german2)
+
+    print()
+    print("----------------------------------------------------------------------")
+    print()
+    print("##### ", name_de, " vergleich zu ", name_de2, " (Normal) #####")
+
+    norm_test(shifted_merge_df)
 
 
 def getGermanDistrict():
@@ -225,6 +144,27 @@ def plot(x1, y1, name_1, x2, y2, name_2, title):
     fig.show()
 
 
+def searchNutCode(name):
+    czData = czech_district_keys.copy(deep=False)
+
+    czData.drop(czData.index[(czData["CZ_LKR_Name"] != name)], axis=0,
+                inplace=True)
+
+    key = czData.iloc[0]['CZ_LKR_Schlüssel']
+    return key
+
+
+def searchLKS(name):
+    germanData = german_district_keys.copy(deep=False)
+
+    germanData.drop(germanData.index[(germanData["name"] != name)], axis=0,
+                    inplace=True)
+
+    key = germanData.iloc[0]['keys']
+    return str(key)
+
+
+
 def compareCountries(germandf, german_what, czechdf, czech_what, title, name_de, name_cz):
     # copy cause python wants this
     copy_german = germandf.copy(deep=False)
@@ -248,7 +188,8 @@ def compareCountries(germandf, german_what, czechdf, czech_what, title, name_de,
 
     norm_test(shifted_merge_df)
 
-    # plot(copy_german['date'], copy_german['infected_number_de'].diff(), name_de, copy_cz['date'], copy_cz['infected_number'].diff(), name_cz, title)
+#    plot(copy_german['date'], copy_german['infected_number_de'].diff(), name_de, copy_cz['date'],
+#        copy_cz['infected_number'].diff(), name_cz, title)
 
 
 # Shifted Compare Plot
@@ -354,8 +295,11 @@ def norm_test(df):
     shapiro_test = stats.shapiro(np.array(copy_df['infected_number_de']))
     print(shapiro_test)
 
-    #plt.hist(copy_df['infected_number_de'])
-    #plt.show()
+    plt.hist(copy_df['infected_number_de'].diff())
+    plt.title('Verteilung der Neuinfektionen pro Tag von Hof')
+    plt.xlabel('Infektionen pro Tag')
+    plt.ylabel('Häufigkeit')
+    plt.show()
 
     print()
     print("Mann-Whitney-U Test (Infektionen/Tag): ")
@@ -363,9 +307,15 @@ def norm_test(df):
     print(u)
 
     print()
-    print("Mann-Whitney-U Test (Summe): ")
+    print("Mann-Whitney-U Test (Absolut): ")
     v = scipy.stats.mannwhitneyu(copy_df['infected_number_de'], copy_df['infected_number'])
     print(v)
+
+    print()
+    print("Mann-Whitney-U Test (Relativ): ")
+    v2 = scipy.stats.mannwhitneyu(copy_df['infected_number_de'] / 94522, copy_df['infected_number'] / 32071)
+    print(v2)
+    print(copy_df['infected_number_de'] / 94522, copy_df['infected_number'] / 32071)
 
     print()
     print("Spearman: ")
@@ -384,14 +334,22 @@ def norm_test(df):
 '''Funktionen00'''
 
 # Hier Landkreise austauschen (rechte Seite)
-cz_district = Eger
-cz_name = nameof(Eger)
+cz_district = "Böhmisch Leipa (Česká Lípa)"
 
-de_district = Hof
-de_name = nameof(Hof)
+de_district = "Görlitz"
+
+de_district2 = "Gießen"
 
 # Funktionsaufrufe
-compareCountries(filtered_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Normal)"), de_name, cz_name)
-compareShiftedCountries(shifted_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Verschoben)"), de_name, cz_name)
 
+#compareCountries(filtered_german_df, searchLKS(de_district), filtered_czech_df, searchNutCode(cz_district),
+#                 (de_district + " zu " + cz_district + " (Normal)"), de_district, cz_district)
+
+# compareShiftedCountries(shifted_german_df, de_district, filtered_czech_df, cz_district, (de_name + " zu " + cz_name + " (Verschoben)"), de_name, cz_name)
+
+#compareGermanDistricts(filtered_german_df, searchLKS(de_district), filtered_german_df, searchLKS(de_district2),
+                       #(de_district + " zu " + de_district2 + " (Normal)"), de_district, de_district2)
+
+compareRandomGermanDistricts()
 #compareAllDistricts()
+
